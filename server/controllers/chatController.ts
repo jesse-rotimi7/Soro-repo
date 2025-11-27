@@ -187,6 +187,14 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
     // Convert userId to string for consistent comparison
     const userIdStr = userId.toString();
 
+    // Debug: Check total users in database
+    const totalUsers = await User.countDocuments();
+    console.log(`[GetUsers] Total users in database: ${totalUsers}`);
+    console.log(`[GetUsers] Current user ID: ${userIdStr}`);
+    console.log(`[GetUsers] Search query: ${search || 'none'}`);
+    console.log(`[GetUsers] Online filter: ${online || 'none'}`);
+    console.log(`[GetUsers] Exclude existing chats: ${excludeExistingChats || 'none'}`);
+
     let query: any = { _id: { $ne: userId } };
 
     if (search) {
@@ -200,12 +208,21 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
       query.isOnline = true;
     }
 
+    console.log(`[GetUsers] MongoDB query:`, JSON.stringify(query, null, 2));
+
     let users = await User.find(query)
       .select('username email avatar isOnline lastSeen createdAt')
       .limit(50)
       .sort({ isOnline: -1, username: 1 });
 
-    console.log(`Found ${users.length} users before filtering`);
+    console.log(`[GetUsers] Found ${users.length} users before filtering`);
+    if (users.length > 0) {
+      console.log(`[GetUsers] Sample users found:`, users.slice(0, 3).map(u => ({ 
+        id: u._id, 
+        username: u.username, 
+        email: u.email 
+      })));
+    }
 
     // Exclude users you already chat with
     if (excludeExistingChats === 'true') {
@@ -214,7 +231,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
         isGroup: false
       }).select('participants');
 
-      console.log(`Found ${existingRooms.length} existing chat rooms`);
+      console.log(`[GetUsers] Found ${existingRooms.length} existing chat rooms`);
 
       const existingUserIds = new Set<string>();
       existingRooms.forEach(room => {
@@ -226,18 +243,30 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
         });
       });
 
-      console.log(`Excluding ${existingUserIds.size} users from existing chats`);
+      console.log(`[GetUsers] Excluding ${existingUserIds.size} users from existing chats`);
       
       const beforeFilter = users.length;
       users = users.filter(user => {
         const userStr = (user._id as any).toString();
         return !existingUserIds.has(userStr);
       });
-      console.log(`After filtering: ${users.length} users (removed ${beforeFilter - users.length})`);
+      console.log(`[GetUsers] After filtering: ${users.length} users (removed ${beforeFilter - users.length})`);
     }
 
-    console.log(`Returning ${users.length} users`);
-    res.json({ users });
+    console.log(`[GetUsers] Returning ${users.length} users`);
+    
+    // Include helpful debug info in response (only in development)
+    const response: any = { users };
+    if (process.env.NODE_ENV !== 'production' && users.length === 0) {
+      response.debug = {
+        totalUsersInDB: totalUsers,
+        currentUserId: userIdStr,
+        searchQuery: search || null,
+        message: 'No users found. Try without the search parameter to see all users, or create more users in the database.'
+      };
+    }
+    
+    res.json(response);
   } catch (error: any) {
     console.error('Get users error:', error);
     console.error('Error details:', error.message, error.stack);

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { getAvatarUrl } from '@/utils/avatar';
 
 interface NavbarProps {
   onLogout: () => void;
@@ -41,12 +42,41 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
             >
               Discover
             </Link>
+            <Link
+              href="/settings"
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                pathname === '/settings'
+                  ? 'bg-gray-800 text-[#F18805]'
+                  : 'text-gray-300 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              Settings
+            </Link>
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-[#F18805] rounded-full flex items-center justify-center">
+          <Link href="/settings" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+            {user?.avatar && getAvatarUrl(user.avatar) ? (
+              <img
+                src={getAvatarUrl(user.avatar)!}
+                alt={user.username}
+                className="w-8 h-8 rounded-full object-cover border border-gray-600"
+                onError={(e) => {
+                  // If image fails to load, hide img and show placeholder
+                  e.currentTarget.style.display = 'none';
+                  const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (placeholder) {
+                    placeholder.style.display = 'flex';
+                  }
+                }}
+              />
+            ) : null}
+            <div 
+              className={`w-8 h-8 bg-[#F18805] rounded-full flex items-center justify-center ${
+                user?.avatar && getAvatarUrl(user.avatar) ? 'hidden' : ''
+              }`}
+            >
               <span className="text-black font-semibold text-sm">
                 {user?.username?.charAt(0).toUpperCase()}
               </span>
@@ -57,7 +87,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
                 {user?.isOnline ? 'Online' : 'Offline'}
               </p>
             </div>
-          </div>
+          </Link>
 
           <button
             onClick={onLogout}

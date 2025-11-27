@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import path from 'path';
+import fs from 'fs';
 import User from '../models/User';
-import { generateToken } from '../middleware/auth';
+import { generateToken, AuthRequest } from '../middleware/auth';
 import { setupBotChatForUser } from '../utils/bot';
 
 export const register = async (req: Request, res: Response) => {
@@ -34,11 +36,18 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
+    // Handle avatar file upload (if provided)
+    let avatarPath = '';
+    if ((req as any).file) {
+      avatarPath = `/uploads/avatars/${(req as any).file.filename}`;
+    }
+
     // Create new user
     const user = new User({
       username,
       email,
-      password
+      password,
+      avatar: avatarPath
     });
 
     await user.save();
@@ -183,5 +192,154 @@ export const getProfile = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const updateProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?._id as any;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { username, email } = req.body;
+
+    // Update username if provided
+    if (username && username !== user.username) {
+      // Check if username is already taken
+      const existingUser = await User.findOne({ username });
+      if (existingUser && (existingUser._id as any).toString() !== userId.toString()) {
+        return res.status(400).json({ message: 'Username already taken' });
+      }
+      user.username = username;
+    }
+
+    // Update email if provided
+    if (email && email !== user.email) {
+      // Check if email is already taken
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser && (existingUser._id as any).toString() !== userId.toString()) {
+        return res.status(400).json({ message: 'Email already taken' });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        isOnline: user.isOnline
+      }
+    });
+  } catch (error: any) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+};
+
+export const updateAvatar = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?._id as any;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    if (!(req as any).file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Delete old avatar file if it exists
+    if (user.avatar && user.avatar.startsWith('/uploads/avatars/')) {
+      const oldAvatarPath = path.join(process.cwd(), 'public', user.avatar);
+      if (fs.existsSync(oldAvatarPath)) {
+        fs.unlinkSync(oldAvatarPath);
+      }
+    }
+
+    // Update avatar path
+    const avatarPath = `/uploads/avatars/${(req as any).file.filename}`;
+    user.avatar = avatarPath;
+    await user.save();
+
+    res.json({
+      message: 'Avatar updated successfully',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        isOnline: user.isOnline
+      }
+    });
+  } catch (error: any) {
+    console.error('Update avatar error:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+};
+
+export const removeAvatar = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?._id as any;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Delete old avatar file if it exists
+    if (user.avatar && user.avatar.startsWith('/uploads/avatars/')) {
+      const oldAvatarPath = path.join(process.cwd(), 'public', user.avatar);
+      if (fs.existsSync(oldAvatarPath)) {
+        fs.unlinkSync(oldAvatarPath);
+      }
+    }
+
+    // Remove avatar
+    user.avatar = '';
+    await user.save();
+
+    res.json({
+      message: 'Avatar removed successfully',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        isOnline: user.isOnline
+      }
+    });
+  } catch (error: any) {
+    console.error('Remove avatar error:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
   }
 };

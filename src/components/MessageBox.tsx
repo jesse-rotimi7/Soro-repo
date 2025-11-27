@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSocket } from '@/context/SocketContext';
 import { useAuth } from '@/context/AuthContext';
+import { getAvatarUrl } from '@/utils/avatar';
 
 interface MessageBoxProps {
   currentRoom: any;
@@ -67,14 +68,41 @@ const MessageBox: React.FC<MessageBoxProps> = ({ currentRoom }) => {
       {/* Chat Header */}
       <div className="bg-gray-900 border-b border-gray-700 p-4">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-[#F18805] rounded-full flex items-center justify-center">
-            <span className="text-black font-semibold">
-              {currentRoom.isGroup 
+          {(() => {
+            const otherParticipant = currentRoom.participants?.find((p: any) => p._id !== user?.id);
+            const participantAvatar = !currentRoom.isGroup && otherParticipant?.avatar ? getAvatarUrl(otherParticipant.avatar) : null;
+            const displayName = currentRoom.isGroup 
                 ? currentRoom.name.charAt(0).toUpperCase()
-                : currentRoom.participants.find((p: any) => p._id !== user?.id)?.username.charAt(0).toUpperCase()
-              }
+              : otherParticipant?.username?.charAt(0).toUpperCase();
+            
+            return (
+              <>
+                {participantAvatar ? (
+                  <img
+                    src={participantAvatar}
+                    alt={currentRoom.isGroup ? currentRoom.name : otherParticipant?.username}
+                    className="w-10 h-10 rounded-full object-cover border border-gray-700"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (placeholder) {
+                        placeholder.style.display = 'flex';
+                      }
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`w-10 h-10 bg-[#F18805] rounded-full flex items-center justify-center ${
+                    participantAvatar ? 'hidden' : ''
+                  }`}
+                >
+                  <span className="text-black font-semibold">
+                    {displayName}
             </span>
           </div>
+              </>
+            );
+          })()}
           <div>
             <h3 className="text-white font-semibold">
               {currentRoom.isGroup 
@@ -125,11 +153,31 @@ const MessageBox: React.FC<MessageBoxProps> = ({ currentRoom }) => {
               >
                 <div className={`flex space-x-2 max-w-xs lg:max-w-md ${isOwnMessage ? 'flex-row-reverse space-x-reverse' : ''}`}>
                   {!isOwnMessage && (
-                    <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <>
+                      {message.sender.avatar && getAvatarUrl(message.sender.avatar) ? (
+                        <img
+                          src={getAvatarUrl(message.sender.avatar)!}
+                          alt={message.sender.username}
+                          className="w-8 h-8 rounded-full object-cover border border-gray-600 flex-shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (placeholder) {
+                              placeholder.style.display = 'flex';
+                            }
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className={`w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          message.sender.avatar && getAvatarUrl(message.sender.avatar) ? 'hidden' : ''
+                        }`}
+                      >
                       <span className="text-white text-xs font-semibold">
                         {message.sender.username.charAt(0).toUpperCase()}
                       </span>
                     </div>
+                    </>
                   )}
                   
                   <div className={`px-4 py-2 rounded-lg ${

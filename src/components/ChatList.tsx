@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSocket } from '@/context/SocketContext';
 import { useAuth } from '@/context/AuthContext';
+import { getAvatarUrl } from '@/utils/avatar';
 
 interface ChatListProps {
   onRoomSelect: (room: any) => void;
@@ -88,6 +89,7 @@ const ChatList: React.FC<ChatListProps> = ({ onRoomSelect, selectedRoomId }) => 
             const isOnline = otherParticipant ? onlineUsers.has(otherParticipant._id) : false;
             
             const isSelected = selectedRoomId === room._id;
+            const showAvatar = !room.isGroup && otherParticipant?.avatar && getAvatarUrl(otherParticipant.avatar);
             
             return (
               <div
@@ -99,7 +101,25 @@ const ChatList: React.FC<ChatListProps> = ({ onRoomSelect, selectedRoomId }) => 
               >
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-[#F18805] rounded-full flex items-center justify-center">
+                    {showAvatar ? (
+                      <img
+                        src={getAvatarUrl(otherParticipant!.avatar)!}
+                        alt={displayName}
+                        className="w-12 h-12 rounded-full object-cover border border-gray-700"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (placeholder) {
+                            placeholder.style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className={`w-12 h-12 bg-[#F18805] rounded-full flex items-center justify-center ${
+                        showAvatar ? 'hidden' : ''
+                      }`}
+                    >
                       <span className="text-black font-semibold">
                         {displayName.charAt(0).toUpperCase()}
                       </span>

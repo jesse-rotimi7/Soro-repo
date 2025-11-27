@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useSocket } from '@/context/SocketContext';
 import Navbar from '@/components/Navbar';
@@ -11,8 +11,9 @@ import MessageInput from '@/components/MessageInput';
 
 export default function ChatPage() {
   const { user, logout, loading } = useAuth();
-  const { setCurrentRoom, loadMessages, currentRoom } = useSocket();
+  const { setCurrentRoom, loadMessages, currentRoom, chatRooms, loadChatRooms } = useSocket();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
 
   useEffect(() => {
@@ -20,6 +21,43 @@ export default function ChatPage() {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  // Handle room query parameter (when navigating from discover page)
+  useEffect(() => {
+    const roomId = searchParams.get('room');
+    if (roomId) {
+      // Check if currentRoom is already set and matches (from context)
+      if (currentRoom && (currentRoom._id === roomId || currentRoom._id?.toString() === roomId)) {
+        // Room is already set, just remove query parameter
+        router.replace('/chat');
+        return;
+      }
+
+      // Try to find room in existing chatRooms first (fast path)
+      if (chatRooms.length > 0) {
+        const room = chatRooms.find((r: any) => r._id === roomId || r._id?.toString() === roomId);
+        if (room) {
+          setCurrentRoom(room);
+          setSelectedRoom(room);
+          router.replace('/chat');
+          return;
+        }
+      }
+
+      // If room not found and currentRoom is set from context, use it
+      // (This handles the case where room was just created and set in context)
+      if (currentRoom) {
+        router.replace('/chat');
+      }
+    }
+  }, [searchParams, chatRooms, currentRoom, setCurrentRoom, router]);
+
+  // Load chat rooms on mount if not loaded
+  useEffect(() => {
+    if (user && chatRooms.length === 0) {
+      loadChatRooms();
+    }
+  }, [user, chatRooms.length, loadChatRooms]);
 
   useEffect(() => {
     // setCurrentRoom now handles everything: clearing messages, joining socket room, and loading messages

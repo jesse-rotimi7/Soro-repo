@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import connectDB from './config/database';
 import authRoutes from './routes/auth';
 import chatRoutes from './routes/chat';
@@ -43,9 +44,14 @@ connectDB().then((connected) => {
 // Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// Serve static files for avatars
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);

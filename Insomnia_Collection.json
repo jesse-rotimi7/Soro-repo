@@ -1,0 +1,449 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2024-01-01T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2024.0.0",
+  "resources": [
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:5000",
+        "auth_token": ""
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1000000000000
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "name": "Authentication",
+      "description": "Public authentication endpoints",
+      "parentId": null,
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1000000000000
+    },
+    {
+      "_id": "req_register",
+      "_type": "request",
+      "name": "Register User",
+      "description": "Register a new user account",
+      "url": "{{ base_url }}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "name": "Login",
+      "description": "Login with email and password",
+      "url": "{{ base_url }}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_logout",
+      "_type": "request",
+      "name": "Logout",
+      "description": "Logout current user",
+      "url": "{{ base_url }}/api/auth/logout",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"userId\": \"USER_ID_HERE\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 3000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_get_profile",
+      "_type": "request",
+      "name": "Get Profile",
+      "description": "Get user profile by ID",
+      "url": "{{ base_url }}/api/auth/profile/USER_ID_HERE",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 4000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "fld_chat",
+      "_type": "request_group",
+      "name": "Chat",
+      "description": "Chat room and message endpoints",
+      "parentId": null,
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2000000000000
+    },
+    {
+      "_id": "fld_chat_rooms",
+      "_type": "request_group",
+      "name": "Chat Rooms",
+      "description": "Chat room management",
+      "parentId": "fld_chat",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1000000000000
+    },
+    {
+      "_id": "req_create_room",
+      "_type": "request",
+      "name": "Create Chat Room",
+      "description": "Create a new chat room",
+      "url": "{{ base_url }}/api/chat/rooms",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"My Group Chat\",\n  \"description\": \"A test group chat\",\n  \"participants\": [\"USER_ID_1\", \"USER_ID_2\"],\n  \"isGroup\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_chat_rooms"
+    },
+    {
+      "_id": "req_get_rooms",
+      "_type": "request",
+      "name": "Get All Chat Rooms",
+      "description": "Get all chat rooms for the logged-in user",
+      "url": "{{ base_url }}/api/chat/rooms",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_chat_rooms"
+    },
+    {
+      "_id": "req_get_room",
+      "_type": "request",
+      "name": "Get Chat Room by ID",
+      "description": "Get a specific chat room by ID",
+      "url": "{{ base_url }}/api/chat/rooms/ROOM_ID_HERE",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 3000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_chat_rooms"
+    },
+    {
+      "_id": "fld_messages",
+      "_type": "request_group",
+      "name": "Messages",
+      "description": "Message endpoints",
+      "parentId": "fld_chat",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2000000000000
+    },
+    {
+      "_id": "req_get_messages",
+      "_type": "request",
+      "name": "Get Messages",
+      "description": "Get messages from a chat room",
+      "url": "{{ base_url }}/api/chat/rooms/ROOM_ID_HERE/messages?page=1&limit=50",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "page",
+          "value": "1",
+          "description": "Page number (default: 1)"
+        },
+        {
+          "name": "limit",
+          "value": "50",
+          "description": "Messages per page (default: 50)"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_messages"
+    },
+    {
+      "_id": "req_create_message",
+      "_type": "request",
+      "name": "Create Message",
+      "description": "Send a message to a chat room",
+      "url": "{{ base_url }}/api/chat/messages",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"content\": \"Hello, this is a test message!\",\n  \"chatRoom\": \"ROOM_ID_HERE\",\n  \"messageType\": \"text\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_messages"
+    },
+    {
+      "_id": "fld_users",
+      "_type": "request_group",
+      "name": "Users",
+      "description": "User management endpoints",
+      "parentId": "fld_chat",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 3000000000000
+    },
+    {
+      "_id": "req_get_users",
+      "_type": "request",
+      "name": "Get Users",
+      "description": "Get list of users with optional filters",
+      "url": "{{ base_url }}/api/chat/users",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "name": "search",
+          "value": "",
+          "description": "Search by username or email",
+          "disabled": true
+        },
+        {
+          "name": "online",
+          "value": "true",
+          "description": "Filter by online status",
+          "disabled": true
+        },
+        {
+          "name": "excludeExistingChats",
+          "value": "false",
+          "description": "Exclude users you already chat with",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_get_user_profile",
+      "_type": "request",
+      "name": "Get User Profile",
+      "description": "Get profile of a specific user",
+      "url": "{{ base_url }}/api/chat/users/USER_ID_HERE/profile",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_create_dm",
+      "_type": "request",
+      "name": "Create Direct Message",
+      "description": "Create a direct message chat with another user",
+      "url": "{{ base_url }}/api/chat/direct-message",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"targetUserId\": \"USER_ID_HERE\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ auth_token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 3000000000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    }
+  ]
+}
+
+
+

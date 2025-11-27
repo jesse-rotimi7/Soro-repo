@@ -30,7 +30,7 @@ const DiscoverPage: React.FC = () => {
   const [filterOnline, setFilterOnline] = useState(false);
 
   const { user, logout, token } = useAuth();
-  const { createDirectMessage, loadChatRooms } = useSocket();
+  const { createDirectMessage, loadChatRooms, setCurrentRoom } = useSocket();
   const router = useRouter();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -133,11 +133,14 @@ const DiscoverPage: React.FC = () => {
       const room = await createDirectMessage(selectedUser._id);
 
       if (room) {
-        // Reload chat rooms to ensure it's in the list
-        await loadChatRooms();
+        // Set the newly created room as current room immediately
+        setCurrentRoom(room);
         
-        // Navigate to chat page
-        router.push('/chat');
+        // Navigate immediately - don't wait for loadChatRooms
+        router.push(`/chat?room=${room._id}`);
+        
+        // Load chat rooms in background (non-blocking)
+        loadChatRooms().catch(console.error);
         
         // Close modal
         setSelectedUser(null);
@@ -224,12 +227,21 @@ const DiscoverPage: React.FC = () => {
                     onClick={() => handleUserClick(user)}
                     onStartChat={async () => {
                       setIsCreatingChat(true);
-                      const room = await createDirectMessage(user._id);
-                      if (room) {
-                        await loadChatRooms();
-                        router.push('/chat');
+                      try {
+                        const room = await createDirectMessage(user._id);
+                        if (room) {
+                          // Set the newly created room as current room immediately
+                          setCurrentRoom(room);
+                          // Navigate immediately - don't wait for loadChatRooms
+                          router.push(`/chat?room=${room._id}`);
+                          // Load chat rooms in background (non-blocking)
+                          loadChatRooms().catch(console.error);
+                        }
+                      } catch (error) {
+                        console.error('Error creating chat:', error);
+                      } finally {
+                        setIsCreatingChat(false);
                       }
-                      setIsCreatingChat(false);
                     }}
                   />
                 ))}

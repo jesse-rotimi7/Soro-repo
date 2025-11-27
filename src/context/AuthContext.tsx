@@ -14,7 +14,10 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (username: string, email: string, password: string) => Promise<boolean>;
+  register: (username: string, email: string, password: string, avatar?: File | null) => Promise<boolean>;
+  updateProfile: (username?: string, email?: string) => Promise<boolean>;
+  updateAvatar: (avatar: File) => Promise<boolean>;
+  removeAvatar: () => Promise<boolean>;
   logout: () => void;
   loading: boolean;
 }
@@ -83,26 +86,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
-        console.error('Network error: Make sure the backend server is running on', API_BASE_URL);
-        alert('Cannot connect to server. Please make sure the backend is running on port 5000.');
+      if (error.message?.includes('Failed to fetch') || error.name === 'TypeError' || error.message?.includes('NetworkError')) {
+        const errorMsg = `Cannot connect to server at ${API_BASE_URL}.\n\nPossible causes:\n1. Backend server is not running\n2. Server crashed or has errors\n3. CORS configuration issue\n\nPlease check:\n- Is the backend server running? (npm run server)\n- Check the server console for errors\n- Verify the server is on port 5000`;
+        console.error(errorMsg);
+        alert(errorMsg);
       }
       return false;
     }
   };
 
-  const register = async (username: string, email: string, password: string): Promise<boolean> => {
+  const register = async (username: string, email: string, password: string, avatar?: File | null): Promise<boolean> => {
     try {
       const url = `${API_BASE_URL}/auth/register`;
-      console.log('Register attempt to:', url);
-      console.log('API_BASE_URL:', API_BASE_URL);
+      
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('email', email);
+      formData.append('password', password);
+      if (avatar) {
+        formData.append('avatar', avatar);
+      }
       
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
+        body: formData,
       }).catch((fetchError) => {
         console.error('Fetch error details:', fetchError);
         throw new Error(`Network error: ${fetchError.message}. Make sure the backend server is running on ${API_BASE_URL}`);
@@ -132,10 +139,113 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Error message:', error.message);
       
       if (error.message?.includes('Failed to fetch') || error.name === 'TypeError' || error.message?.includes('Network error')) {
-        const errorMsg = `Cannot connect to server at ${API_BASE_URL}.\n\nPlease make sure:\n1. Backend server is running (npm run server)\n2. Server is on port 5000\n3. No firewall is blocking the connection`;
+        const errorMsg = `Cannot connect to server at ${API_BASE_URL}.\n\nPossible causes:\n1. Backend server is not running\n2. Server crashed or has errors\n3. CORS configuration issue\n\nPlease check:\n- Is the backend server running? (npm run server)\n- Check the server console for errors\n- Verify the server is on port 5000`;
         console.error(errorMsg);
         alert(errorMsg);
       }
+      return false;
+    }
+  };
+
+  const updateProfile = async (username?: string, email?: string): Promise<boolean> => {
+    try {
+      if (!token) {
+        console.error('No token available');
+        return false;
+      }
+
+      const url = `${API_BASE_URL}/auth/profile`;
+      const body: any = {};
+      if (username) body.username = username;
+      if (email) body.email = email;
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Update profile failed:', data.message);
+        return false;
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      return true;
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      return false;
+    }
+  };
+
+  const updateAvatar = async (avatar: File): Promise<boolean> => {
+    try {
+      if (!token) {
+        console.error('No token available');
+        return false;
+      }
+
+      const url = `${API_BASE_URL}/auth/profile/avatar`;
+      const formData = new FormData();
+      formData.append('avatar', avatar);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Update avatar failed:', data.message);
+        return false;
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      return true;
+    } catch (error: any) {
+      console.error('Update avatar error:', error);
+      return false;
+    }
+  };
+
+  const removeAvatar = async (): Promise<boolean> => {
+    try {
+      if (!token) {
+        console.error('No token available');
+        return false;
+      }
+
+      const url = `${API_BASE_URL}/auth/profile/avatar`;
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Remove avatar failed:', data.message);
+        return false;
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      return true;
+    } catch (error: any) {
+      console.error('Remove avatar error:', error);
       return false;
     }
   };
@@ -164,6 +274,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     token,
     login,
     register,
+    updateProfile,
+    updateAvatar,
+    removeAvatar,
     logout,
     loading,
   };

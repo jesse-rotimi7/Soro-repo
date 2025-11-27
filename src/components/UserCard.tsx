@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getAvatarUrl } from '@/utils/avatar';
 
 interface User {
   _id: string;
@@ -39,7 +40,25 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
       <div className="flex items-center space-x-4">
         {/* Avatar */}
         <div className="relative flex-shrink-0">
-          <div className="w-12 h-12 bg-[#F18805] rounded-full flex items-center justify-center">
+          {user.avatar && getAvatarUrl(user.avatar) ? (
+            <img
+              src={getAvatarUrl(user.avatar)!}
+              alt={user.username}
+              className="w-12 h-12 rounded-full object-cover border border-gray-700"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                if (placeholder) {
+                  placeholder.style.display = 'flex';
+                }
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-12 h-12 bg-[#F18805] rounded-full flex items-center justify-center ${
+              user.avatar && getAvatarUrl(user.avatar) ? 'hidden' : ''
+            }`}
+          >
             <span className="text-black font-semibold text-lg">
               {user.username.charAt(0).toUpperCase()}
             </span>
@@ -81,3 +100,5 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
 };
 
 export default UserCard;
+
+

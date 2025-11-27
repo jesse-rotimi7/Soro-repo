@@ -89,3 +89,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 };
 
 export default SearchBar;
+
+
+

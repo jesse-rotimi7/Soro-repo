@@ -10,11 +10,45 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
   const { register } = useAuth();
   const router = useRouter();
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
+
+      setAvatar(file);
+      setError('');
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatar(null);
+    setAvatarPreview('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +67,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const success = await register(username, email, password);
+    const success = await register(username, email, password, avatar);
     
     if (success) {
       router.push('/chat');
@@ -54,6 +88,60 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Avatar Upload */}
+            <div className="flex flex-col items-center">
+              <label htmlFor="avatar" className="block text-sm font-medium text-gray-300 mb-2">
+                Profile Picture (Optional)
+              </label>
+              <div className="relative">
+                {avatarPreview ? (
+                  <div className="relative">
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar preview"
+                      className="w-24 h-24 rounded-full object-cover border-2 border-[#F18805]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="avatar"
+                    className="cursor-pointer w-24 h-24 rounded-full bg-gray-800 border-2 border-dashed border-gray-600 flex items-center justify-center hover:border-[#F18805] transition-colors"
+                  >
+                    <div className="text-center">
+                      <svg
+                        className="w-8 h-8 mx-auto text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span className="text-xs text-gray-400 mt-1">Add</span>
+                    </div>
+                  </label>
+                )}
+                <input
+                  id="avatar"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                 Username

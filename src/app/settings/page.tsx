@@ -25,9 +25,16 @@ export default function SettingsPage() {
 
     setUsername(user.username);
     setEmail(user.email);
+    // Always update avatar preview from user.avatar (clears preview if no avatar)
     if (user.avatar) {
       const avatarUrl = getAvatarUrl(user.avatar);
-      if (avatarUrl) setAvatarPreview(avatarUrl);
+      if (avatarUrl) {
+        setAvatarPreview(avatarUrl);
+      } else {
+        setAvatarPreview('');
+      }
+    } else {
+      setAvatarPreview('');
     }
   }, [user, token, router]);
 
@@ -88,6 +95,8 @@ export default function SettingsPage() {
     if (success) {
       setSuccess('Avatar updated successfully');
       setAvatar(null);
+      // Clear preview - it will be updated from user.avatar via useEffect
+      setAvatarPreview('');
     } else {
       setError('Failed to update avatar');
     }

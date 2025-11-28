@@ -20,7 +20,18 @@ export const getAvatarUrl = (avatar?: string): string | null => {
     return fullUrl;
   }
   
-  // If it doesn't match any pattern, return as is (might be a relative path)
-  return avatar;
+  // Handle incorrectly stored filesystem paths (legacy data)
+  // Extract filename from full path and convert to relative path
+  if (avatar.includes('/uploads/avatars/') || avatar.includes('avatar-')) {
+    const filename = avatar.split('/').pop() || avatar.split('\\').pop();
+    if (filename && filename.startsWith('avatar-')) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const baseUrl = apiUrl.replace('/api', '');
+      return `${baseUrl}/uploads/avatars/${filename}`;
+    }
+  }
+  
+  // If it doesn't match any pattern, return null (invalid path)
+  return null;
 };
 

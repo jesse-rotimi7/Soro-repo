@@ -39,7 +39,15 @@ export const register = async (req: Request, res: Response) => {
     // Handle avatar file upload (if provided)
     let avatarPath = '';
     if ((req as any).file) {
-      avatarPath = `/uploads/avatars/${(req as any).file.filename}`;
+      const file = (req as any).file;
+      // Cloudinary returns file.path as a URL (starts with http), local storage returns file.path as filesystem path
+      if (file.path && file.path.startsWith('http')) {
+        // Cloudinary URL
+        avatarPath = file.path;
+      } else {
+        // Local storage - use relative path
+        avatarPath = `/uploads/avatars/${file.filename}`;
+      }
     }
 
     // Create new user
@@ -268,7 +276,7 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Delete old avatar file if it exists
+    // Delete old avatar file if it exists (only for local storage)
     if (user.avatar && user.avatar.startsWith('/uploads/avatars/')) {
       const oldAvatarPath = path.join(process.cwd(), 'public', user.avatar);
       if (fs.existsSync(oldAvatarPath)) {
@@ -277,7 +285,16 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
     }
 
     // Update avatar path
-    const avatarPath = `/uploads/avatars/${(req as any).file.filename}`;
+    const file = (req as any).file;
+    // Cloudinary returns file.path as a URL (starts with http), local storage returns file.path as filesystem path
+    let avatarPath = '';
+    if (file.path && file.path.startsWith('http')) {
+      // Cloudinary URL
+      avatarPath = file.path;
+    } else {
+      // Local storage - use relative path
+      avatarPath = `/uploads/avatars/${file.filename}`;
+    }
     user.avatar = avatarPath;
     await user.save();
 

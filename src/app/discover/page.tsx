@@ -47,6 +47,20 @@ const DiscoverPage: React.FC = () => {
     }
   }, [user, token, searchQuery, filterOnline]);
 
+  // Update current user's avatar in the users list when it changes
+  useEffect(() => {
+    if (user && user.id) {
+      setUsers(prevUsers => 
+        prevUsers.map(u => 
+          // Match by _id (from API) with id (from AuthContext)
+          u._id === user.id 
+            ? { ...u, avatar: user.avatar || '' } 
+            : u
+        )
+      );
+    }
+  }, [user?.avatar, user?.id]);
+
   const fetchUsers = async () => {
     try {
       setLoading(true);

@@ -25,10 +25,16 @@ dotenv.config();
 
 const app = express();
 const server = createServer(app);
+// Socket.io CORS configuration
+const socketOrigins = process.env.CLIENT_URL 
+  ? [process.env.CLIENT_URL, 'http://localhost:3000', 'http://localhost:3002']
+  : ['http://localhost:3000', 'http://localhost:3002'];
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST']
+    origin: socketOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
@@ -42,8 +48,34 @@ connectDB().then((connected) => {
 });
 
 // Middleware
+// CORS configuration - support multiple origins for dev and production
+const allowedOrigins = process.env.CLIENT_URL 
+  ? [process.env.CLIENT_URL, 'http://localhost:3000', 'http://localhost:3002']
+  : ['http://localhost:3000', 'http://localhost:3002'];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches any allowed origin
+    const isAllowed = allowedOrigins.some(allowed => {
+      // Handle both exact match and startsWith for subdomains
+      return origin === allowed || origin.startsWith(allowed);
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      // In development, be more permissive
+      if (process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

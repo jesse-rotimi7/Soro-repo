@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useSocket } from '@/context/SocketContext';
@@ -9,7 +9,7 @@ import ChatList from '@/components/ChatList';
 import MessageBox from '@/components/MessageBox';
 import MessageInput from '@/components/MessageInput';
 
-export default function ChatPage() {
+function ChatContent() {
   const { user, logout, loading } = useAuth();
   const { setCurrentRoom, loadMessages, currentRoom, chatRooms, loadChatRooms } = useSocket();
   const router = useRouter();
@@ -118,5 +118,20 @@ export default function ChatPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#F18805] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
   );
 }

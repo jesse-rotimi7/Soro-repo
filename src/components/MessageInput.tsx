@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { useSocket } from '@/context/SocketContext';
 import { useAuth } from '@/context/AuthContext';
 
@@ -150,7 +150,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
               <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
                 <EmojiPicker
                   onEmojiClick={handleEmojiClick}
-                  theme="dark"
+                  theme={Theme.DARK}
                   width={350}
                   height={400}
                   previewConfig={{

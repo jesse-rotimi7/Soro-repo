@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getAvatarUrl } from '@/utils/avatar';
+import { FiMessageCircle } from 'react-icons/fi';
 
 interface User {
   _id: string;
@@ -34,7 +35,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
 
   return (
     <div
-      className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-[#F18805] transition-colors cursor-pointer"
+      className="bg-gray-900/70 backdrop-blur-sm border border-gray-800 rounded-2xl p-4 hover:border-[#F18805]/50 hover:bg-gray-900/90 transition-all cursor-pointer group"
       onClick={onClick}
     >
       <div className="flex items-center space-x-4">
@@ -44,7 +45,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
             <img
               src={getAvatarUrl(user.avatar)!}
               alt={user.username}
-              className="w-12 h-12 rounded-full object-cover border border-gray-700"
+              className="w-14 h-14 rounded-full object-cover border-2 border-gray-700 group-hover:border-[#F18805] transition-colors"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
@@ -55,25 +56,25 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
             />
           ) : null}
           <div 
-            className={`w-12 h-12 bg-[#F18805] rounded-full flex items-center justify-center ${
+            className={`w-14 h-14 bg-gradient-to-br from-[#F18805] to-[#FF9500] rounded-full flex items-center justify-center shadow-lg shadow-[#F18805]/10 ${
               user.avatar && getAvatarUrl(user.avatar) ? 'hidden' : ''
             }`}
           >
-            <span className="text-black font-semibold text-lg">
+            <span className="text-black font-bold text-xl">
               {user.username.charAt(0).toUpperCase()}
             </span>
           </div>
           {user.isOnline && (
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-gray-800 rounded-full"></div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-gray-900 rounded-full"></div>
           )}
         </div>
 
         {/* User Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h3 className="text-white font-semibold truncate">{user.username}</h3>
+          <div className="flex items-center space-x-2">
+            <h3 className="text-white font-semibold truncate group-hover:text-[#F18805] transition-colors">{user.username}</h3>
             {user.isOnline && (
-              <span className="text-xs text-green-400 font-medium ml-2">Online</span>
+              <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-medium rounded-full">Online</span>
             )}
           </div>
           <p className="text-sm text-gray-400 truncate">{user.email}</p>
@@ -90,9 +91,10 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
             e.stopPropagation();
             onStartChat();
           }}
-          className="bg-[#F18805] hover:bg-[#F18805]/90 text-black font-semibold px-4 py-2 rounded-lg transition-colors flex-shrink-0"
+          className="bg-gradient-to-r from-[#F18805] to-[#FF9500] hover:from-[#FF9500] hover:to-[#F18805] text-black font-semibold px-4 py-2.5 rounded-xl transition-all flex-shrink-0 min-h-[44px] touch-manipulation shadow-lg shadow-[#F18805]/20 hover:shadow-[#F18805]/30 hover:scale-105 active:scale-95 flex items-center space-x-2"
         >
-          Chat
+          <FiMessageCircle className="w-4 h-4" />
+          <span>Chat</span>
         </button>
       </div>
     </div>
@@ -100,5 +102,3 @@ const UserCard: React.FC<UserCardProps> = ({ user, onClick, onStartChat }) => {
 };
 
 export default UserCard;
-
-

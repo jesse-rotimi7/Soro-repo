@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { FiMessageCircle, FiMail, FiLock, FiUser, FiCamera } from 'react-icons/fi';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -14,20 +15,23 @@ export default function RegisterPage() {
   const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mounted, setMounted] = useState(false);
   
   const { register } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         setError('Please select an image file');
         return;
       }
       
-      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError('Image size must be less than 5MB');
         return;
@@ -36,7 +40,6 @@ export default function RegisterPage() {
       setAvatar(file);
       setError('');
       
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
@@ -79,32 +82,47 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="bg-gray-900 rounded-lg shadow-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Soro</h1>
-            <p className="text-gray-400">Create your account to get started</p>
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8 overflow-hidden relative">
+      {/* Animated Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-[#F18805]/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-[#F18805]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-[#F18805]/5 to-transparent rounded-full" />
+      </div>
+
+      <div className={`relative z-10 max-w-md w-full transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-flex items-center space-x-2 group">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#F18805] to-[#FF9500] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FiMessageCircle className="w-7 h-7 text-black" />
+            </div>
+            <span className="text-3xl font-bold text-white">Soro</span>
+          </Link>
+        </div>
+
+        {/* Card */}
+        <div className="bg-gray-900/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-800 hover:border-gray-700 transition-colors">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
+            <p className="text-gray-400">Join the conversation</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Avatar Upload */}
-            <div className="flex flex-col items-center">
-              <label htmlFor="avatar" className="block text-sm font-medium text-gray-300 mb-2">
-                Profile Picture (Optional)
-              </label>
-              <div className="relative">
+            <div className="flex justify-center mb-2">
+              <div className="relative group">
                 {avatarPreview ? (
                   <div className="relative">
                     <img
                       src={avatarPreview}
                       alt="Avatar preview"
-                      className="w-24 h-24 rounded-full object-cover border-2 border-[#F18805]"
+                      className="w-20 h-20 rounded-full object-cover border-2 border-[#F18805] shadow-lg shadow-[#F18805]/20"
                     />
                     <button
                       type="button"
                       onClick={handleRemoveAvatar}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm transition-colors shadow-lg"
                     >
                       ×
                     </button>
@@ -112,24 +130,9 @@ export default function RegisterPage() {
                 ) : (
                   <label
                     htmlFor="avatar"
-                    className="cursor-pointer w-24 h-24 rounded-full bg-gray-800 border-2 border-dashed border-gray-600 flex items-center justify-center hover:border-[#F18805] transition-colors"
+                    className="cursor-pointer w-20 h-20 rounded-full bg-gray-800/80 border-2 border-dashed border-gray-600 flex items-center justify-center hover:border-[#F18805] hover:bg-gray-800 transition-all group"
                   >
-                    <div className="text-center">
-                      <svg
-                        className="w-8 h-8 mx-auto text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      <span className="text-xs text-gray-400 mt-1">Add</span>
-                    </div>
+                    <FiCamera className="w-6 h-6 text-gray-400 group-hover:text-[#F18805] transition-colors" />
                   </label>
                 )}
                 <input
@@ -141,90 +144,121 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
+            <p className="text-xs text-gray-500 text-center mb-4">Optional profile picture</p>
 
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                 Username
               </label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#F18805] focus:ring-1 focus:ring-[#F18805] transition-colors"
-                placeholder="Choose a username"
-              />
+              <div className="relative">
+                <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#F18805] focus:ring-2 focus:ring-[#F18805]/20 transition-all"
+                  placeholder="Choose a username"
+                />
+              </div>
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#F18805] focus:ring-1 focus:ring-[#F18805] transition-colors"
-                placeholder="Enter your email"
-              />
+              <div className="relative">
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#F18805] focus:ring-2 focus:ring-[#F18805]/20 transition-all"
+                  placeholder="Enter your email"
+                />
+              </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#F18805] focus:ring-1 focus:ring-[#F18805] transition-colors"
-                placeholder="Create a password"
-              />
+              <div className="relative">
+                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#F18805] focus:ring-2 focus:ring-[#F18805]/20 transition-all"
+                  placeholder="Create a password"
+                />
+              </div>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
                 Confirm Password
               </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#F18805] focus:ring-1 focus:ring-[#F18805] transition-colors"
-                placeholder="Confirm your password"
-              />
+              <div className="relative">
+                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#F18805] focus:ring-2 focus:ring-[#F18805]/20 transition-all"
+                  placeholder="Confirm your password"
+                />
+              </div>
             </div>
 
             {error && (
-              <div className="bg-red-900/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg">
-                {error}
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#F18805] hover:bg-[#F18805]/90 text-black font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-[#F18805] to-[#FF9500] hover:from-[#FF9500] hover:to-[#F18805] text-black font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-[#F18805]/25 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? (
+                <span className="flex items-center justify-center space-x-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Creating account...</span>
+                </span>
+              ) : 'Create Account'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-400">
               Already have an account?{' '}
-              <Link href="/login" className="text-[#F18805] hover:text-[#F18805]/80 font-medium">
+              <Link href="/login" className="text-[#F18805] hover:text-[#FF9500] font-medium transition-colors">
                 Sign in
               </Link>
             </p>
           </div>
+        </div>
+
+        {/* Back to home */}
+        <div className="text-center mt-6">
+          <Link href="/" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+            ← Back to home
+          </Link>
         </div>
       </div>
     </div>

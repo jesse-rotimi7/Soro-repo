@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { FiX, FiMail, FiCalendar, FiMessageCircle } from 'react-icons/fi';
+import { getAvatarUrl } from '@/utils/avatar';
 
 interface User {
   _id: string;
@@ -40,88 +42,119 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-gray-900 rounded-lg shadow-xl max-w-md w-full border border-gray-700"
+        className="bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-md w-full border border-gray-800 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-white">User Profile</h2>
+        {/* Header with gradient */}
+        <div className="relative h-24 bg-gradient-to-br from-[#F18805] to-[#FF9500]">
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/80 hover:text-white transition-all"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <FiX className="w-5 h-5" />
           </button>
         </div>
 
+        {/* Avatar overlapping header */}
+        <div className="flex justify-center -mt-12">
+          <div className="relative">
+            {user.avatar && getAvatarUrl(user.avatar) ? (
+              <img
+                src={getAvatarUrl(user.avatar)!}
+                alt={user.username}
+                className="w-24 h-24 rounded-full object-cover border-4 border-gray-900 shadow-xl"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (placeholder) {
+                    placeholder.style.display = 'flex';
+                  }
+                }}
+              />
+            ) : null}
+            <div 
+              className={`w-24 h-24 bg-gradient-to-br from-[#F18805] to-[#FF9500] rounded-full flex items-center justify-center border-4 border-gray-900 shadow-xl ${
+                user.avatar && getAvatarUrl(user.avatar) ? 'hidden' : ''
+              }`}
+            >
+              <span className="text-black font-bold text-3xl">
+                {user.username.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            {user.isOnline && (
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-gray-900 rounded-full"></div>
+            )}
+          </div>
+        </div>
+
         {/* Content */}
-        <div className="p-6">
-          {/* Avatar */}
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="w-24 h-24 bg-[#F18805] rounded-full flex items-center justify-center">
-                <span className="text-black font-bold text-3xl">
-                  {user.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              {user.isOnline && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-gray-900 rounded-full"></div>
-              )}
+        <div className="p-6 pt-4">
+          {/* Username and status */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-white mb-1">{user.username}</h2>
+            <div className="flex items-center justify-center space-x-2">
+              <span className={`w-2 h-2 rounded-full ${user.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></span>
+              <span className={user.isOnline ? 'text-green-400' : 'text-gray-400'}>
+                {user.isOnline ? 'Online' : 'Offline'}
+              </span>
             </div>
           </div>
 
-          {/* User Info */}
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-400">Username</label>
-              <p className="text-white font-semibold text-lg">{user.username}</p>
+          {/* User Info Cards */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
+              <div className="w-10 h-10 bg-[#F18805]/20 rounded-lg flex items-center justify-center">
+                <FiMail className="w-5 h-5 text-[#F18805]" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Email</p>
+                <p className="text-white text-sm">{user.email}</p>
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-400">Email</label>
-              <p className="text-white">{user.email}</p>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-400">Status</label>
-              <p className="text-white">
-                {user.isOnline ? (
-                  <span className="text-green-400 font-medium">Online</span>
-                ) : (
-                  <span className="text-gray-400">
-                    Offline{user.lastSeen && ` - Last seen ${formatDate(user.lastSeen)}`}
-                  </span>
-                )}
-              </p>
-            </div>
+            {!user.isOnline && user.lastSeen && (
+              <div className="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                <div className="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center">
+                  <FiCalendar className="w-5 h-5 text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Last Seen</p>
+                  <p className="text-white text-sm">{formatDate(user.lastSeen)}</p>
+                </div>
+              </div>
+            )}
 
             {user.createdAt && (
-              <div>
-                <label className="text-sm text-gray-400">Member Since</label>
-                <p className="text-white">{formatDate(user.createdAt)}</p>
+              <div className="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                <div className="w-10 h-10 bg-[#F18805]/20 rounded-lg flex items-center justify-center">
+                  <FiCalendar className="w-5 h-5 text-[#F18805]" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Member Since</p>
+                  <p className="text-white text-sm">{formatDate(user.createdAt)}</p>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-700 flex space-x-4">
+        <div className="p-6 pt-0 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            className="flex-1 bg-gray-800/80 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all border border-gray-700 hover:border-gray-600"
           >
             Close
           </button>
           <button
             onClick={onStartChat}
             disabled={isLoading}
-            className="flex-1 bg-[#F18805] hover:bg-[#F18805]/90 text-black font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-gradient-to-r from-[#F18805] to-[#FF9500] hover:from-[#FF9500] hover:to-[#F18805] text-black font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#F18805]/20 hover:shadow-[#F18805]/30 flex items-center justify-center space-x-2"
           >
-            {isLoading ? 'Loading...' : hasExistingChat ? 'Open Chat' : 'Start Chat'}
+            <FiMessageCircle className="w-4 h-4" />
+            <span>{isLoading ? 'Loading...' : hasExistingChat ? 'Open Chat' : 'Start Chat'}</span>
           </button>
         </div>
       </div>
@@ -130,6 +163,3 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 };
 
 export default UserProfileModal;
-
-
-

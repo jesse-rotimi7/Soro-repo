@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import SearchBar from '@/components/SearchBar';
 import UserCard from '@/components/UserCard';
 import UserProfileModal from '@/components/UserProfileModal';
+import { FiUsers, FiSearch } from 'react-icons/fi';
 
 interface User {
   _id: string;
@@ -47,12 +48,10 @@ const DiscoverPage: React.FC = () => {
     }
   }, [user, token, searchQuery, filterOnline]);
 
-  // Update current user's avatar in the users list when it changes
   useEffect(() => {
     if (user && user.id) {
       setUsers(prevUsers => 
         prevUsers.map(u => 
-          // Match by _id (from API) with id (from AuthContext)
           u._id === user.id 
             ? { ...u, avatar: user.avatar || '' } 
             : u
@@ -71,12 +70,8 @@ const DiscoverPage: React.FC = () => {
       if (filterOnline) {
         params.append('online', 'true');
       }
-      // Optionally exclude users you already chat with
-      // Set to false to show all users, true to hide users you already chat with
-      // params.append('excludeExistingChats', 'true');
 
       const url = `${API_BASE_URL}/chat/users?${params.toString()}`;
-      console.log('Fetching users from:', url);
 
       const response = await fetch(url, {
         headers: {
@@ -84,16 +79,10 @@ const DiscoverPage: React.FC = () => {
         },
       });
 
-      console.log('Response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log('Users data:', data);
-        console.log('Number of users:', data.users?.length || 0);
         setUsers(data.users || []);
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-        console.error('Failed to fetch users:', response.status, errorData);
         setUsers([]);
       }
     } catch (error) {
@@ -122,7 +111,6 @@ const DiscoverPage: React.FC = () => {
           hasExistingChat: data.hasExistingChat,
         });
       } else {
-        console.error('Failed to fetch user profile');
         setProfileData({
           user,
           hasExistingChat: false,
@@ -147,20 +135,11 @@ const DiscoverPage: React.FC = () => {
       const room = await createDirectMessage(selectedUser._id);
 
       if (room) {
-        // Set the newly created room as current room immediately
         setCurrentRoom(room);
-        
-        // Navigate immediately - don't wait for loadChatRooms
         router.push(`/chat?room=${room._id}`);
-        
-        // Load chat rooms in background (non-blocking)
         loadChatRooms().catch(console.error);
-        
-        // Close modal
         setSelectedUser(null);
         setProfileData(null);
-      } else {
-        console.error('Failed to create direct message');
       }
     } catch (error) {
       console.error('Error creating chat:', error);
@@ -179,51 +158,63 @@ const DiscoverPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col pb-16 sm:pb-0 relative">
+      {/* Animated Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-[#F18805]/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#F18805]/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
       <Navbar onLogout={handleLogout} />
 
-      <div className="flex-1 overflow-hidden">
-        <div className="max-w-4xl mx-auto w-full h-full flex flex-col p-4 md:p-6">
+      <div className="flex-1 overflow-hidden relative z-10">
+        <div className="max-w-4xl mx-auto w-full h-full flex flex-col p-4 sm:p-6">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">Discover Users</h1>
-            <p className="text-gray-400">Find and start conversations with other users</p>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#F18805]/20 to-[#FF9500]/10 rounded-xl flex items-center justify-center">
+                <FiUsers className="w-5 h-5 text-[#F18805]" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Discover</h1>
+            </div>
+            <p className="text-gray-400 ml-13">Find and connect with other users</p>
           </div>
 
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
-            <SearchBar
-              onSearch={(query) => setSearchQuery(query)}
-              placeholder="Search by username or email..."
-            />
+            <div className="relative">
+              <SearchBar
+                onSearch={(query) => setSearchQuery(query)}
+                placeholder="Search by username or email..."
+              />
+            </div>
             
             {/* Filter Toggle */}
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="online-only"
-                checked={filterOnline}
-                onChange={(e) => setFilterOnline(e.target.checked)}
-                className="w-4 h-4 text-[#F18805] bg-gray-800 border-gray-700 rounded focus:ring-[#F18805]"
-              />
-              <label htmlFor="online-only" className="text-gray-300 cursor-pointer">
-                Show online users only
-              </label>
-            </div>
+            <label className="inline-flex items-center space-x-3 cursor-pointer group">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={filterOnline}
+                  onChange={(e) => setFilterOnline(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:bg-[#F18805] transition-colors"></div>
+                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+              </div>
+              <span className="text-gray-300 group-hover:text-white transition-colors">Show online users only</span>
+            </label>
           </div>
 
           {/* Users List */}
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="w-8 h-8 border-4 border-[#F18805] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-[#F18805] border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : users.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+              <div className="text-center py-16">
+                <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700">
+                  <FiSearch className="w-8 h-8 text-gray-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">No users found</h3>
                 <p className="text-gray-400">
@@ -244,11 +235,8 @@ const DiscoverPage: React.FC = () => {
                       try {
                         const room = await createDirectMessage(user._id);
                         if (room) {
-                          // Set the newly created room as current room immediately
                           setCurrentRoom(room);
-                          // Navigate immediately - don't wait for loadChatRooms
                           router.push(`/chat?room=${room._id}`);
-                          // Load chat rooms in background (non-blocking)
                           loadChatRooms().catch(console.error);
                         }
                       } catch (error) {

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { useSocket } from '@/context/SocketContext';
 import { useAuth } from '@/context/AuthContext';
+import { FiSmile, FiSend } from 'react-icons/fi';
 
 interface MessageInputProps {
   currentRoom: any;
@@ -13,10 +14,20 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerWidth, setEmojiPickerWidth] = useState(350);
   const { sendMessage, startTyping, stopTyping } = useSocket();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+
+  useEffect(() => {
+    const updateWidth = () => {
+      setEmojiPickerWidth(Math.min(350, window.innerWidth - 32));
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +36,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
       sendMessage(message.trim(), currentRoom._id);
       setMessage('');
       
-      // Stop typing indicator
       if (isTyping) {
         stopTyping(currentRoom._id);
         setIsTyping(false);
       }
       
-      // Clear typing timeout
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = null;
@@ -45,18 +54,15 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
 
     if (!currentRoom) return;
 
-    // Start typing indicator
     if (!isTyping && value.trim()) {
       setIsTyping(true);
       startTyping(currentRoom._id);
     }
 
-    // Clear existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Set new timeout to stop typing
     typingTimeoutRef.current = setTimeout(() => {
       if (isTyping) {
         stopTyping(currentRoom._id);
@@ -77,7 +83,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
     setShowEmojiPicker(false);
   };
 
-  // Close emoji picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
@@ -94,7 +99,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
     };
   }, [showEmojiPicker]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) {
@@ -116,42 +120,31 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
     : otherParticipant?.username || currentRoom.name || 'chat';
 
   return (
-    <div className="bg-gray-900 border-t border-gray-700 p-4">
-      <form onSubmit={handleSubmit} className="flex space-x-4">
-        <div className="flex-1 relative">
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="text-gray-400 hover:text-[#F18805] transition-colors p-2 hover:bg-gray-800 rounded-lg"
-              aria-label="Toggle emoji picker"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-            <input
-              type="text"
-              value={message}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              placeholder={`Message ${placeholderTarget}...`}
-              className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#F18805] focus:ring-1 focus:ring-[#F18805] transition-colors"
-              maxLength={1000}
-            />
-          </div>
+    <div className="bg-gray-900/80 backdrop-blur-xl border-t border-gray-800 p-4 safe-area-bottom">
+      <form onSubmit={handleSubmit} className="flex items-center gap-3">
+        {/* Emoji Button */}
+        <div className="relative" ref={emojiPickerRef}>
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className={`p-2.5 rounded-xl transition-all ${
+              showEmojiPicker 
+                ? 'bg-[#F18805]/20 text-[#F18805]' 
+                : 'text-gray-400 hover:text-[#F18805] hover:bg-gray-800'
+            }`}
+            aria-label="Toggle emoji picker"
+          >
+            <FiSmile className="w-5 h-5" />
+          </button>
           
           {/* Emoji Picker */}
           {showEmojiPicker && (
-            <div 
-              ref={emojiPickerRef}
-              className="absolute bottom-full left-0 mb-2 z-50 shadow-2xl"
-            >
-              <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            <div className="absolute bottom-full left-0 mb-2 z-50 shadow-2xl">
+              <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 shadow-xl shadow-black/50">
                 <EmojiPicker
                   onEmojiClick={handleEmojiClick}
                   theme={Theme.DARK}
-                  width={350}
+                  width={emojiPickerWidth}
                   height={400}
                   previewConfig={{
                     showPreview: false
@@ -162,24 +155,38 @@ const MessageInput: React.FC<MessageInputProps> = ({ currentRoom }) => {
             </div>
           )}
         </div>
+
+        {/* Input */}
+        <div className="flex-1 relative">
+          <input
+            type="text"
+            value={message}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            placeholder={`Message ${placeholderTarget}...`}
+            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#F18805] focus:ring-2 focus:ring-[#F18805]/20 transition-all text-sm"
+            maxLength={1000}
+          />
+        </div>
         
+        {/* Send Button */}
         <button
           type="submit"
           disabled={!message.trim()}
-          className="bg-[#F18805] hover:bg-[#F18805]/90 text-black font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="p-3 bg-gradient-to-r from-[#F18805] to-[#FF9500] hover:from-[#FF9500] hover:to-[#F18805] text-black rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-[#F18805]/20 hover:shadow-[#F18805]/30 hover:scale-105 active:scale-95 disabled:hover:scale-100"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-          </svg>
+          <FiSend className="w-5 h-5" />
         </button>
       </form>
       
-      <div className="mt-2 text-xs text-gray-400">
-        {message.length}/1000 characters
+      {/* Character count */}
+      <div className="flex justify-end mt-2">
+        <span className={`text-xs ${message.length > 900 ? 'text-[#F18805]' : 'text-gray-600'}`}>
+          {message.length}/1000
+        </span>
       </div>
     </div>
   );
 };
 
 export default MessageInput;
-

@@ -84,12 +84,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative z-10 px-6 pt-16 sm:pt-24 pb-20">
         <div className="max-w-7xl mx-auto text-center">
-          <div className={`transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {/* <div className={`transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="inline-flex items-center space-x-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-full px-4 py-2 mb-8">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               <span className="text-sm text-gray-300">Real-time messaging platform</span>
             </div>
-          </div>
+          </div> */}
           
           <h1 className={`text-5xl sm:text-6xl md:text-7xl font-bold mb-6 transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <span className="text-white">Connect with</span>
@@ -156,7 +156,7 @@ export default function Home() {
       </section>
 
       {/* Tech Stack Section */}
-      <section className="relative z-10 px-6 py-20">
+      {/* <section className="relative z-10 px-6 py-20">
         <div className="max-w-4xl mx-auto">
           <div className={`bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 rounded-3xl p-8 sm:p-12 text-center transition-all duration-700 ${mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} style={{ transitionDelay: '900ms' }}>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
@@ -177,7 +177,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="relative z-10 px-6 py-20 pb-32">

@@ -124,7 +124,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout, showBackButton = false, onBac
                   {user?.username?.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <div className="hidden sm:block">
+              <div className="">
                 <p className="text-white font-medium text-sm">{user?.username}</p>
                 <div className="flex items-center space-x-1.5">
                   <span className={`w-2 h-2 rounded-full ${user?.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></span>

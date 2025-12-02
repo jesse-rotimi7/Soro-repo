@@ -1,218 +1,402 @@
-# Soro - Real-time Chat Application
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Socket.io-4-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.io" />
+  <img src="https://img.shields.io/badge/MongoDB-6-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Tailwind-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+</p>
 
-A modern, full-stack real-time chat application built with React, Node.js, Socket.io, and MongoDB.
+<h1 align="center">🗨️ Soro</h1>
 
-## Features
+<p align="center">
+  <strong>A modern real-time chat application built with cutting-edge web technologies</strong>
+</p>
 
-- 🔐 JWT Authentication (Signup/Login)
-- 💬 Real-time messaging with Socket.io
-- 👥 User management with online/offline status
-- 📱 Responsive design with dark theme
-- 🎨 Modern UI with Tailwind CSS
-- 🔒 Protected routes and middleware
-- 📊 MongoDB with Mongoose ODM
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#-architecture">Architecture</a> •
+  <a href="#-getting-started">Getting Started</a> •
+  <a href="#-api-documentation">API Docs</a> •
+  <a href="#-deployment">Deployment</a>
+</p>
 
-## Tech Stack
+---
+
+## 🎯 Overview
+
+**Soro** is a full-stack real-time messaging platform that enables seamless communication between users. Built with a focus on performance, scalability, and user experience, it demonstrates proficiency in modern web development practices including WebSocket communication, JWT authentication, responsive design, and cloud deployment.
+
+### 🌟 Why Soro?
+
+- **Real-time First**: Instant message delivery using Socket.io with WebSocket fallback
+- **Modern Stack**: Built with Next.js 15, React 19, and TypeScript for type-safe development
+- **Production Ready**: Deployed with split architecture (Vercel + Render) for optimal performance
+- **Beautiful UI**: Crafted with Tailwind CSS featuring dark theme with signature orange accents
+
+---
+
+## ✨ Features
+
+### Core Functionality
+- 💬 **Real-time Messaging** - Instant message delivery with Socket.io
+- 👥 **User Discovery** - Find and connect with other users
+- 🔐 **Secure Authentication** - JWT-based auth with bcrypt password hashing
+- 📱 **Responsive Design** - Mobile-first approach with bottom navigation
+- 🟢 **Online Status** - Real-time presence indicators
+- ⌨️ **Typing Indicators** - See when others are typing
+- 😊 **Emoji Support** - Rich emoji picker integration
+
+### User Experience
+- 🖼️ **Avatar Upload** - Profile pictures with Cloudinary integration
+- 🔍 **Search & Filter** - Find conversations and users easily
+- 🌙 **Dark Theme** - Easy on the eyes with glowing orange accents
+- ⚡ **Optimistic Updates** - Instant UI feedback for better UX
+- 📲 **PWA Ready** - Installable on mobile devices
+
+### Technical Highlights
+- 🔄 **Socket.io Rooms** - Efficient message broadcasting
+- 🗄️ **MongoDB Atlas** - Cloud-hosted NoSQL database
+- ☁️ **Cloudinary CDN** - Optimized image delivery
+- 🚀 **Edge Deployment** - Vercel edge network for frontend
+
+---
+
+## 🛠 Tech Stack
 
 ### Frontend
-- **Next.js 16** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Socket.io Client** - Real-time communication
-- **Context API** - State management
+| Technology | Purpose |
+|------------|---------|
+| **Next.js 15** | React framework with App Router |
+| **React 19** | UI library with latest features |
+| **TypeScript** | Type-safe JavaScript |
+| **Tailwind CSS** | Utility-first styling |
+| **Socket.io Client** | Real-time communication |
+| **React Icons** | Icon library |
+| **Emoji Picker React** | Emoji selection component |
 
 ### Backend
-- **Node.js** - Runtime environment
-- **Express** - Web framework
-- **Socket.io** - Real-time communication
-- **MongoDB** - Database
-- **Mongoose** - ODM
-- **JWT** - Authentication
-- **bcryptjs** - Password hashing
+| Technology | Purpose |
+|------------|---------|
+| **Express.js** | Node.js web framework |
+| **Socket.io** | WebSocket server |
+| **MongoDB + Mongoose** | Database & ODM |
+| **JWT** | Authentication tokens |
+| **bcryptjs** | Password hashing |
+| **Multer** | File upload handling |
+| **Cloudinary** | Cloud image storage |
 
-## Project Structure
+### DevOps & Tools
+| Technology | Purpose |
+|------------|---------|
+| **Vercel** | Frontend hosting & CDN |
+| **Render** | Backend hosting |
+| **MongoDB Atlas** | Database hosting |
+| **Git** | Version control |
+
+---
+
+## 🏗 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         CLIENT (Vercel)                          │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                    Next.js 15 Frontend                   │    │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │    │
+│  │  │  Pages   │  │Components│  │ Context  │  │  Utils  │ │    │
+│  │  └──────────┘  └──────────┘  └──────────┘  └─────────┘ │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                    HTTP/REST │ WebSocket
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        SERVER (Render)                           │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                   Express.js Backend                     │    │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │    │
+│  │  │  Routes  │  │Controllers│ │ Socket.io│  │Middleware│ │    │
+│  │  └──────────┘  └──────────┘  └──────────┘  └─────────┘ │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    EXTERNAL SERVICES                             │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │
+│  │ MongoDB Atlas  │  │   Cloudinary   │  │      JWT       │     │
+│  │   (Database)   │  │    (Images)    │  │    (Auth)      │     │
+│  └────────────────┘  └────────────────┘  └────────────────┘     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+1. **Authentication Flow**
+   ```
+   User → Login/Register → Express API → JWT Token → Client Storage
+   ```
+
+2. **Messaging Flow**
+   ```
+   User Types → Socket.io Emit → Server Broadcast → Recipients Receive
+   ```
+
+3. **Image Upload Flow**
+   ```
+   File Select → Multer Parse → Cloudinary Upload → URL Stored in MongoDB
+   ```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- MongoDB (local or Atlas)
+- Cloudinary account (optional, for avatars)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/soro.git
+   cd soro
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   
+   Create a `.env` file in the root directory:
+   ```env
+   # Database
+   MONGODB_URI=mongodb://localhost:27017/soro
+   
+   # Authentication
+   JWT_SECRET=your-super-secret-jwt-key
+   
+   # Server
+   PORT=5000
+   CLIENT_URL=http://localhost:3000
+   
+   # Cloudinary (Optional - for avatar uploads)
+   CLOUDINARY_CLOUD_NAME=your-cloud-name
+   CLOUDINARY_API_KEY=your-api-key
+   CLOUDINARY_API_SECRET=your-api-secret
+   
+   # Frontend (in .env.local)
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api
+   NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+   ```
+
+4. **Run the development servers**
+   
+   ```bash
+   # Terminal 1 - Backend
+   npm run server
+   
+   # Terminal 2 - Frontend
+   npm run client
+   ```
+   
+   Or run both concurrently:
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   
+   Navigate to `http://localhost:3000`
+
+---
+
+## 📁 Project Structure
 
 ```
 soro/
-├── src/
-│   ├── app/                 # Next.js app directory
-│   │   ├── login/           # Login page
-│   │   ├── register/        # Register page
-│   │   ├── chat/            # Chat page
-│   │   ├── layout.tsx       # Root layout
-│   │   └── page.tsx         # Home page
-│   ├── components/          # React components
-│   │   ├── Navbar.tsx
-│   │   ├── ChatList.tsx
-│   │   ├── MessageBox.tsx
-│   │   └── MessageInput.tsx
-│   ├── context/            # React contexts
-│   │   ├── AuthContext.tsx
-│   │   └── SocketContext.tsx
-│   ├── pages/              # Page components
-│   └── utils/              # Utility functions
-├── server/                 # Backend server
-│   ├── config/             # Configuration
-│   │   └── database.ts
-│   ├── controllers/        # Route controllers
-│   │   ├── authController.ts
-│   │   └── chatController.ts
-│   ├── middleware/         # Custom middleware
-│   │   └── auth.ts
-│   ├── models/            # Mongoose models
-│   │   ├── User.ts
-│   │   ├── Message.ts
-│   │   └── ChatRoom.ts
-│   ├── routes/            # API routes
-│   │   ├── auth.ts
-│   │   └── chat.ts
-│   └── server.ts          # Main server file
-└── env.example            # Environment variables template
+├── 📂 src/                     # Next.js frontend
+│   ├── 📂 app/                 # App router pages
+│   │   ├── 📄 page.tsx         # Landing page
+│   │   ├── 📂 login/           # Login page
+│   │   ├── 📂 register/        # Registration page
+│   │   ├── 📂 chat/            # Main chat interface
+│   │   ├── 📂 discover/        # User discovery
+│   │   └── 📂 settings/        # User settings
+│   ├── 📂 components/          # React components
+│   │   ├── 📄 Navbar.tsx       # Navigation bar
+│   │   ├── 📄 ChatList.tsx     # Conversation list
+│   │   ├── 📄 MessageBox.tsx   # Message display
+│   │   ├── 📄 MessageInput.tsx # Message composer
+│   │   └── ...
+│   ├── 📂 context/             # React contexts
+│   │   ├── 📄 AuthContext.tsx  # Authentication state
+│   │   └── 📄 SocketContext.tsx# Socket.io state
+│   └── 📂 utils/               # Utility functions
+│
+├── 📂 server/                  # Express backend
+│   ├── 📄 server.ts            # Entry point
+│   ├── 📂 controllers/         # Route handlers
+│   ├── 📂 models/              # Mongoose models
+│   ├── 📂 routes/              # API routes
+│   ├── 📂 middleware/          # Custom middleware
+│   └── 📂 utils/               # Backend utilities
+│
+├── 📄 package.json             # Dependencies & scripts
+├── 📄 next.config.ts           # Next.js configuration
+├── 📄 tailwind.config.ts       # Tailwind configuration
+└── 📄 tsconfig.json            # TypeScript configuration
 ```
 
-## Setup Instructions
+---
 
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB (local or MongoDB Atlas)
-- npm or yarn
+## 📡 API Documentation
 
-### 1. Clone and Install Dependencies
+### Authentication Endpoints
 
-```bash
-# Install all dependencies
-npm install
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | Register new user |
+| `POST` | `/api/auth/login` | User login |
+| `POST` | `/api/auth/logout` | User logout |
+| `GET` | `/api/auth/me` | Get current user |
+| `PUT` | `/api/auth/profile` | Update profile |
+| `POST` | `/api/auth/profile/avatar` | Upload avatar |
+| `DELETE` | `/api/auth/profile/avatar` | Remove avatar |
 
-### 2. Environment Configuration
+### Chat Endpoints
 
-Copy the environment template and configure your settings:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/chat/rooms` | Get user's chat rooms |
+| `POST` | `/api/chat/rooms` | Create chat room |
+| `GET` | `/api/chat/rooms/:id/messages` | Get room messages |
+| `GET` | `/api/chat/users` | Get discoverable users |
+| `GET` | `/api/chat/users/:id/profile` | Get user profile |
+| `POST` | `/api/chat/dm` | Create direct message |
 
-```bash
-cp env.example .env
-```
+### Socket.io Events
 
-Edit `.env` with your MongoDB connection details:
+| Event | Direction | Description |
+|-------|-----------|-------------|
+| `join_room` | Client → Server | Join a chat room |
+| `leave_room` | Client → Server | Leave a chat room |
+| `send_message` | Client → Server | Send a message |
+| `receive_message` | Server → Client | Receive a message |
+| `typing_start` | Client → Server | Start typing indicator |
+| `typing_stop` | Client → Server | Stop typing indicator |
+| `user_typing` | Server → Client | User is typing |
+| `user_online` | Server → Client | User came online |
+| `user_offline` | Server → Client | User went offline |
 
-```env
-# MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017/soro-chat
-# Or use MongoDB Atlas: mongodb+srv://username:password@cluster.mongodb.net/soro-chat
+---
 
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRE=7d
+## 🌐 Deployment
 
-# Server Configuration
-PORT=5000
-NODE_ENV=development
+### Frontend (Vercel)
 
-# Frontend URL (for CORS)
-CLIENT_URL=http://localhost:3000
-```
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Add environment variables:
+   - `NEXT_PUBLIC_API_URL`
+   - `NEXT_PUBLIC_SOCKET_URL`
+4. Deploy
 
-### 3. MongoDB Setup
+### Backend (Render)
 
-#### Option A: Local MongoDB
-1. Install MongoDB locally
-2. Start MongoDB service
-3. Use `mongodb://localhost:27017/soro-chat` as your MONGODB_URI
+1. Create a new Web Service
+2. Connect your repository
+3. Configure:
+   - **Build Command**: `npm install && npm run build:server`
+   - **Start Command**: `npm run start:server`
+   - **Root Directory**: (leave empty)
+4. Add environment variables:
+   - `MONGODB_URI`
+   - `JWT_SECRET`
+   - `CLIENT_URL`
+   - `CLOUDINARY_*` (if using)
+5. Deploy
 
-#### Option B: MongoDB Atlas (Recommended)
-1. Create a free account at [MongoDB Atlas](https://www.mongodb.com/atlas)
-2. Create a new cluster
-3. Get your connection string
-4. Replace `<username>`, `<password>`, and `<cluster>` in the connection string
-5. Use the Atlas connection string as your MONGODB_URI
+---
 
-### 4. Run the Application
+## 🎨 Design Decisions
 
-```bash
-# Start both frontend and backend concurrently
-npm run dev
+### Why Split Deployment?
+Socket.io requires a persistent server connection, which isn't possible with serverless functions. Splitting the frontend (Vercel) and backend (Render) allows:
+- Edge-deployed frontend for fast page loads
+- Persistent WebSocket connections on the backend
+- Independent scaling of each service
 
-# Or run them separately:
-# Backend only
-npm run server
+### Why MongoDB?
+- Flexible schema for evolving chat features
+- Excellent for document-based data (messages, users)
+- Native support for real-time change streams
+- Easy cloud hosting with MongoDB Atlas
 
-# Frontend only
-npm run client
-```
+### Why Tailwind CSS?
+- Rapid UI development with utility classes
+- Consistent design system
+- Excellent dark mode support
+- Small production bundle with purging
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+---
 
-## Usage
+## 🧪 Key Learnings
 
-1. **Register**: Create a new account with username, email, and password
-2. **Login**: Sign in with your credentials
-3. **Chat**: Start messaging in real-time
-4. **Features**:
-   - Real-time message delivery
-   - Online/offline user status
-   - Typing indicators
-   - Responsive design
-   - Dark theme with orange accent (#F18805)
+Building Soro provided hands-on experience with:
 
-## API Endpoints
+- **Real-time Systems**: Implementing WebSocket communication with Socket.io, handling connection states, and broadcasting messages efficiently
+- **Authentication**: JWT token management, secure password hashing, and protected routes
+- **State Management**: React Context for global state, optimistic updates, and socket event handling
+- **Responsive Design**: Mobile-first approach with Tailwind CSS, safe area handling, and touch-optimized UI
+- **Cloud Services**: Integrating Cloudinary for image uploads, MongoDB Atlas for database, and multi-platform deployment
+- **TypeScript**: End-to-end type safety across frontend and backend
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `GET /api/auth/profile/:userId` - Get user profile
+---
 
-### Chat
-- `POST /api/chat/rooms` - Create chat room
-- `GET /api/chat/rooms` - Get user's chat rooms
-- `GET /api/chat/rooms/:roomId` - Get specific chat room
-- `GET /api/chat/rooms/:roomId/messages` - Get messages
-- `POST /api/chat/messages` - Send message
-- `GET /api/chat/users` - Search users
+## 🔮 Future Enhancements
 
-## Socket.io Events
+- [ ] Group chat functionality
+- [ ] Message reactions
+- [ ] Read receipts
+- [ ] File/image sharing in messages
+- [ ] Voice messages
+- [ ] Push notifications
+- [ ] Message search
+- [ ] User blocking
+- [ ] Chat themes customization
+- [ ] End-to-end encryption
 
-### Client to Server
-- `join-rooms` - Join user's chat rooms
-- `send-message` - Send a message
-- `typing` - Start typing indicator
-- `stop-typing` - Stop typing indicator
+---
 
-### Server to Client
-- `new-message` - New message received
-- `room-updated` - Chat room updated
-- `user-status-changed` - User online/offline status changed
-- `user-typing` - User is typing
-- `user-stop-typing` - User stopped typing
+## 👨‍💻 Author
 
-## Development
+**Your Name**
 
-### Scripts
-- `npm run dev` - Start both frontend and backend
-- `npm run client` - Start frontend only
-- `npm run server` - Start backend only
-- `npm run build` - Build for production
-- `npm run start` - Start production build
-- `npm run lint` - Run ESLint
+- Portfolio: [yourportfolio.com](https://yourportfolio.com)
+- LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
+- GitHub: [@yourusername](https://github.com/yourusername)
+- Email: your.email@example.com
 
-### Adding Features
-1. Backend: Add routes in `server/routes/`, controllers in `server/controllers/`
-2. Frontend: Add components in `src/components/`, pages in `src/pages/`
-3. Real-time: Add Socket.io events in `server/server.ts` and `src/context/SocketContext.tsx`
+---
 
-## Contributing
+## 📄 License
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## License
+---
 
-This project is open source and available under the [MIT License](LICENSE).
+<p align="center">
+  <strong>⭐ If you found this project interesting, please consider giving it a star!</strong>
+</p>
 
-## Support
-
-For support or questions, please open an issue in the repository.
+<p align="center">
+  Made with ❤️ and lots of ☕
+</p>

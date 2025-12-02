@@ -17,6 +17,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Soro - Real-time Chat App",
   description: "A modern real-time chat application built with React, Node.js, and Socket.io",
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.svg',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#F18805',
 };
 
 export default function RootLayout({
